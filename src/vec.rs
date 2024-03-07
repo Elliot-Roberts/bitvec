@@ -5,39 +5,21 @@
 use alloc::vec;
 use alloc::vec::Vec;
 use core::{
-	mem::{
-		self,
-		ManuallyDrop,
-	},
-	ptr,
-	slice,
+	mem::{self, ManuallyDrop},
+	ptr, slice,
 };
 
 use tap::Pipe;
-use wyz::comu::{
-	Const,
-	Mut,
-};
+use wyz::comu::{Const, Mut};
 
-pub use self::iter::{
-	Drain,
-	Splice,
-};
+pub use self::iter::{Drain, Splice};
 pub use crate::boxed::IntoIter;
 use crate::{
 	boxed::BitBox,
 	index::BitIdx,
 	mem::bits_of,
-	order::{
-		BitOrder,
-		Lsb0,
-	},
-	ptr::{
-		AddressExt,
-		BitPtr,
-		BitSpan,
-		BitSpanError,
-	},
+	order::{BitOrder, Lsb0},
+	ptr::{AddressExt, BitPtr, BitSpan, BitSpanError},
 	slice::BitSlice,
 	store::BitStore,
 	view::BitView,
@@ -46,18 +28,17 @@ use crate::{
 mod api;
 mod iter;
 mod ops;
-mod tests;
 mod traits;
 
 #[repr(C)]
 #[doc = include_str!("../doc/vec/BitVec.md")]
-pub struct BitVec<T = usize, O = Lsb0>
+pub struct BitVec<T = u8, O = Lsb0>
 where
 	T: BitStore,
 	O: BitOrder,
 {
 	/// Span description of the live bits in the allocation.
-	bitspan:  BitSpan<Mut, T, O>,
+	bitspan: BitSpan<Mut, T, O>,
 	/// Allocation capacity, measured in `T` elements.
 	capacity: usize,
 }
@@ -70,7 +51,7 @@ where
 {
 	/// An empty bit-vector with no backing allocation.
 	pub const EMPTY: Self = Self {
-		bitspan:  BitSpan::EMPTY,
+		bitspan: BitSpan::EMPTY,
 		capacity: 0,
 	};
 
@@ -287,7 +268,7 @@ where
 		let len = self.len();
 		let olen = other.len();
 		self.resize(len + olen, false);
-		unsafe { self.get_unchecked_mut(len ..) }.clone_from_bitslice(other);
+		unsafe { self.get_unchecked_mut(len..) }.clone_from_bitslice(other);
 	}
 
 	/// Appends a slice of `T` elements to a bit-vector.
@@ -514,8 +495,8 @@ where
 		let last = head + self.len();
 		let all = self.as_raw_mut_slice().view_bits_mut::<O>();
 		unsafe {
-			all.get_unchecked_mut(.. head).fill(value);
-			all.get_unchecked_mut(last ..).fill(value);
+			all.get_unchecked_mut(..head).fill(value);
+			all.get_unchecked_mut(last..).fill(value);
 		}
 	}
 
@@ -558,9 +539,7 @@ where
 		unsafe {
 			bitspan.set_head(BitIdx::MIN);
 			bitspan.set_len(last);
-			bitspan
-				.into_bitslice_mut()
-				.copy_within_unchecked(head .., 0);
+			bitspan.into_bitslice_mut().copy_within_unchecked(head.., 0);
 			bitspan.set_len(len);
 		}
 		self.bitspan = bitspan;
@@ -651,7 +630,9 @@ where
 	/// and capacity.
 	#[inline]
 	fn with_vec<F, R>(&mut self, func: F) -> R
-	where F: FnOnce(&mut ManuallyDrop<Vec<T>>) -> R {
+	where
+		F: FnOnce(&mut ManuallyDrop<Vec<T>>) -> R,
+	{
 		let mut vec = unsafe { ptr::read(self) }
 			.into_vec()
 			.pipe(ManuallyDrop::new);

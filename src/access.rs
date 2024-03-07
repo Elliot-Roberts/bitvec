@@ -6,17 +6,15 @@ use funty::Integral;
 use radium::Radium;
 
 use crate::{
-	index::{
-		BitIdx,
-		BitMask,
-	},
+	index::{BitIdx, BitMask},
 	mem::BitRegister,
 	order::BitOrder,
 };
 
 #[doc = include_str!("../doc/access/BitAccess.md")]
 pub trait BitAccess: Radium
-where <Self as Radium>::Item: BitRegister
+where
+	<Self as Radium>::Item: BitRegister,
 {
 	/// Clears bits within a memory element to `0`.
 	///
@@ -124,13 +122,14 @@ where <Self as Radium>::Item: BitRegister
 	/// bits remain unchanged.
 	#[inline]
 	fn write_bit<O>(&self, index: BitIdx<Self::Item>, value: bool) -> bool
-	where O: BitOrder {
+	where
+		O: BitOrder,
+	{
 		let select = index.select::<O>().into_inner();
 		select
 			& if value {
 				self.fetch_or(select, Ordering::Relaxed)
-			}
-			else {
+			} else {
 				self.fetch_and(!select, Ordering::Relaxed)
 			} != <Self::Item>::ZERO
 	}
@@ -158,8 +157,7 @@ where <Self as Radium>::Item: BitRegister
 	) -> for<'a> fn(&'a Self, BitMask<Self::Item>) -> Self::Item {
 		if value {
 			Self::set_bits
-		}
-		else {
+		} else {
 			Self::clear_bits
 		}
 	}
@@ -237,14 +235,7 @@ macro_rules! safe {
 
 safe! {
 	u8 => BitSafeU8 => radium::types::RadiumU8;
-	u16 => BitSafeU16 => radium::types::RadiumU16;
-	u32 => BitSafeU32 => radium::types::RadiumU32;
 }
-
-#[cfg(target_pointer_width = "64")]
-safe!(u64 => BitSafeU64 => radium::types::RadiumU64);
-
-safe!(usize => BitSafeUsize => radium::types::RadiumUsize);
 
 #[cfg(test)]
 mod tests {

@@ -1,19 +1,13 @@
 #![doc = include_str!("../doc/store.md")]
 
-use core::{
-	cell::Cell,
-	fmt::Debug,
-};
+use core::{cell::Cell, fmt::Debug};
 
 use funty::Integral;
 
 use crate::{
 	access::*,
 	index::BitIdx,
-	mem::{
-		self,
-		BitRegister,
-	},
+	mem::{self, BitRegister},
 	order::BitOrder,
 };
 
@@ -73,7 +67,9 @@ pub trait BitStore: 'static + Debug {
 	/// [`BitAccess`]: crate::access::BitAccess
 	#[inline]
 	fn get_bit<O>(&self, index: BitIdx<Self::Mem>) -> bool
-	where O: BitOrder {
+	where
+		O: BitOrder,
+	{
 		self.load_value() & index.select::<O>().into_inner()
 			!= <Self::Mem as Integral>::ZERO
 	}
@@ -187,14 +183,7 @@ macro_rules! store {
 
 store! {
 	u8 => BitSafeU8;
-	u16 => BitSafeU16;
-	u32 => BitSafeU32;
 }
-
-#[cfg(target_pointer_width = "64")]
-store!(u64 => BitSafeU64);
-
-store!(usize => BitSafeUsize);
 
 /// Generates `BitStore` implementations for atomic types.
 macro_rules! atomic {
@@ -234,14 +223,7 @@ macro_rules! atomic {
 
 atomic! {
 	8, u8 => AtomicU8;
-	16, u16 => AtomicU16;
-	32, u32 => AtomicU32;
 }
-
-#[cfg(target_pointer_width = "64")]
-atomic!(64, u64 => AtomicU64);
-
-atomic!(size, usize => AtomicUsize);
 
 #[cfg(test)]
 mod tests {
@@ -250,50 +232,16 @@ mod tests {
 	use super::*;
 	use crate::prelude::*;
 
-	#[test]
-	fn load_store() {
-		let mut word = 0usize;
-
-		word.store_value(39);
-		assert_eq!(word.load_value(), 39);
-
-		let mut safe = BitSafeUsize::new(word);
-		safe.store_value(57);
-		assert_eq!(safe.load_value(), 57);
-
-		let mut cell = Cell::new(0usize);
-		cell.store_value(39);
-		assert_eq!(cell.load_value(), 39);
-
-		radium::if_atomic!(if atomic(size) {
-			let mut atom = AtomicUsize::new(0);
-			atom.store_value(57);
-			assert_eq!(atom.load_value(), 57);
-		});
-	}
-
 	/// Unaliased `BitSlice`s are universally threadsafe, because they satisfy
 	/// Rust’s unsynchronized mutation rules.
 	#[test]
 	fn unaliased_send_sync() {
 		assert_impl_all!(BitSlice<u8, LocalBits>: Send, Sync);
-		assert_impl_all!(BitSlice<u16, LocalBits>: Send, Sync);
-		assert_impl_all!(BitSlice<u32, LocalBits>: Send, Sync);
-		assert_impl_all!(BitSlice<usize, LocalBits>: Send, Sync);
-
-		#[cfg(target_pointer_width = "64")]
-		assert_impl_all!(BitSlice<u64, LocalBits>: Send, Sync);
 	}
 
 	#[test]
 	fn cell_unsend_unsync() {
 		assert_not_impl_any!(BitSlice<Cell<u8>, LocalBits>: Send, Sync);
-		assert_not_impl_any!(BitSlice<Cell<u16>, LocalBits>: Send, Sync);
-		assert_not_impl_any!(BitSlice<Cell<u32>, LocalBits>: Send, Sync);
-		assert_not_impl_any!(BitSlice<Cell<usize>, LocalBits>: Send, Sync);
-
-		#[cfg(target_pointer_width = "64")]
-		assert_not_impl_any!(BitSlice<Cell<u64>, LocalBits>: Send, Sync);
 	}
 
 	/// In non-atomic builds, aliased `BitSlice`s become universally
@@ -307,23 +255,11 @@ mod tests {
 	#[cfg(not(feature = "atomic"))]
 	fn aliased_non_atomic_unsend_unsync() {
 		assert_not_impl_any!(BitSlice<BitSafeU8, LocalBits>: Send, Sync);
-		assert_not_impl_any!(BitSlice<BitSafeU16, LocalBits>: Send, Sync);
-		assert_not_impl_any!(BitSlice<BitSafeU32, LocalBits>: Send, Sync);
-		assert_not_impl_any!(BitSlice<BitSafeUsize, LocalBits>: Send, Sync);
-
-		#[cfg(target_pointer_width = "64")]
-		assert_not_impl_any!(BitSlice<BitSafeU64, LocalBits>: Send, Sync);
 	}
 
 	#[test]
 	#[cfg(feature = "atomic")]
 	fn aliased_atomic_send_sync() {
 		assert_impl_all!(BitSlice<AtomicU8, LocalBits>: Send, Sync);
-		assert_impl_all!(BitSlice<AtomicU16, LocalBits>: Send, Sync);
-		assert_impl_all!(BitSlice<AtomicU32, LocalBits>: Send, Sync);
-		assert_impl_all!(BitSlice<AtomicUsize, LocalBits>: Send, Sync);
-
-		#[cfg(target_pointer_width = "64")]
-		assert_impl_all!(BitSlice<AtomicU64, LocalBits>: Send, Sync);
 	}
 }

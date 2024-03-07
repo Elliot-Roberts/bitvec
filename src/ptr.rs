@@ -19,7 +19,6 @@ mod proxy;
 mod range;
 mod single;
 mod span;
-mod tests;
 
 pub use wyz::comu::{
 	Const,

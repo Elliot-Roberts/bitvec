@@ -28,7 +28,7 @@ macro_rules! register {
 	)+ };
 }
 
-register!(u8, u16, u32);
+register!(u8);
 
 /** `u64` can only be used as a register on processors whose word size is at
 least 64 bits.
@@ -117,14 +117,7 @@ macro_rules! element {
 
 element! {
 	8, u8 => AtomicU8;
-	16, u16 => AtomicU16;
-	32, u32 => AtomicU32;
 }
-
-#[cfg(target_pointer_width = "64")]
-element!(64, u64 => AtomicU64);
-
-element!(size, usize => AtomicUsize);
 
 #[cfg(test)]
 mod tests {
@@ -136,24 +129,5 @@ mod tests {
 		assert!(aligned_to_size::<u8>());
 		assert!(aligned_to_size::<BitSafeU8>());
 		assert!(layout_eq::<u8, BitSafeU8>());
-
-		assert!(aligned_to_size::<u16>());
-		assert!(aligned_to_size::<BitSafeU16>());
-		assert!(layout_eq::<u16, BitSafeU16>());
-
-		assert!(aligned_to_size::<u32>());
-		assert!(aligned_to_size::<BitSafeU32>());
-		assert!(layout_eq::<u32, BitSafeU32>());
-
-		assert!(aligned_to_size::<usize>());
-		assert!(aligned_to_size::<BitSafeUsize>());
-		assert!(layout_eq::<usize, BitSafeUsize>());
-
-		#[cfg(target_pointer_width = "64")]
-		{
-			assert!(aligned_to_size::<u64>());
-			assert!(aligned_to_size::<BitSafeU64>());
-			assert!(layout_eq::<u64, BitSafeU64>());
-		}
 	}
 }

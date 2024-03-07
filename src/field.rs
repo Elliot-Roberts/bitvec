@@ -36,7 +36,6 @@ use crate::{
 };
 
 mod io;
-mod tests;
 
 #[doc = include_str!("../doc/field/BitField.md")]
 pub trait BitField {

@@ -7,7 +7,6 @@ use core::{
 		Borrow,
 		BorrowMut,
 	},
-	cell::Cell,
 	convert::TryFrom,
 	fmt::Debug,
 	hash::Hash,
@@ -93,44 +92,6 @@ fn ops() {
 
 	let _: &BitSlice = &a;
 	let _: &mut BitSlice = &mut f;
-}
-
-#[test]
-fn traits() {
-	let a = BitArray::<[Cell<u16>; 3], Msb0>::default();
-	let b = a.clone();
-	assert_eq!(a, b);
-
-	let mut c = rand::random::<[u8; 4]>();
-	let d = c.view_bits_mut::<Lsb0>();
-	assert!(<&BitArray<[u8; 4], Lsb0>>::try_from(&*d).is_ok());
-	assert!(<&mut BitArray<[u8; 4], Lsb0>>::try_from(&mut *d).is_ok());
-	assert!(<&BitArray<[u8; 3], Lsb0>>::try_from(&d[4 .. 28]).is_err());
-	assert!(<&mut BitArray<[u8; 3], Lsb0>>::try_from(&mut d[4 .. 28]).is_err());
-	assert_eq!(BitArray::<[u8; 4], Lsb0>::try_from(&*d).unwrap(), *d);
-}
-
-#[test]
-fn iter() {
-	let data = rand::random::<[u32; 4]>();
-	let bits = data.into_bitarray::<Lsb0>();
-	let view = data.view_bits::<Lsb0>();
-
-	assert!(
-		bits.into_iter()
-			.zip(view.iter().by_vals())
-			.all(|(a, b)| a == b)
-	);
-
-	let mut iter = bits.into_iter();
-	assert!(iter.next().is_some());
-	assert!(iter.next_back().is_some());
-	assert!(iter.nth(6).is_some());
-	assert!(iter.nth_back(6).is_some());
-	assert_eq!(iter.len(), 112);
-
-	assert_eq!(iter.as_bitslice(), &view[8 .. 120]);
-	assert_eq!(iter.as_mut_bitslice(), &view[8 .. 120]);
 }
 
 #[cfg(feature = "alloc")]

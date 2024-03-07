@@ -3,38 +3,18 @@
 use core::{
 	cell::UnsafeCell,
 	cmp,
-	fmt::{
-		self,
-		Debug,
-		Display,
-		Formatter,
-		Pointer,
-	},
-	hash::{
-		Hash,
-		Hasher,
-	},
+	fmt::{self, Debug, Display, Formatter, Pointer},
+	hash::{Hash, Hasher},
 	marker::PhantomData,
 	mem,
-	ops::{
-		Deref,
-		DerefMut,
-		Not,
-	},
+	ops::{Deref, DerefMut, Not},
 };
 
-use wyz::comu::{
-	Const,
-	Mut,
-	Mutability,
-};
+use wyz::comu::{Const, Mut, Mutability};
 
 use super::BitPtr;
 use crate::{
-	order::{
-		BitOrder,
-		Lsb0,
-	},
+	order::{BitOrder, Lsb0},
 	store::BitStore,
 };
 
@@ -46,7 +26,7 @@ use crate::{
 	not(any(target_pointer_width = "32", target_pointer_width = "64")),
 	repr(C)
 )]
-pub struct BitRef<'a, M = Const, T = usize, O = Lsb0>
+pub struct BitRef<'a, M = Const, T = u8, O = Lsb0>
 where
 	M: Mutability,
 	T: BitStore,
@@ -55,9 +35,9 @@ where
 	/// The proxied bit-address.
 	bitptr: BitPtr<M, T, O>,
 	/// A local cache of the proxied bit that can be referenced.
-	data:   bool,
+	data: bool,
 	/// Attach the lifetime and reflect the possibility of mutation.
-	_ref:   PhantomData<&'a UnsafeCell<bool>>,
+	_ref: PhantomData<&'a UnsafeCell<bool>>,
 }
 
 impl<M, T, O> BitRef<'_, M, T, O>
@@ -111,8 +91,8 @@ where
 	pub(crate) unsafe fn remove_alias(this: BitRef<M, T::Alias, O>) -> Self {
 		Self {
 			bitptr: this.bitptr.cast::<T>(),
-			data:   this.data,
-			_ref:   PhantomData,
+			data: this.data,
+			_ref: PhantomData,
 		}
 	}
 }
@@ -350,8 +330,11 @@ where
 {
 	#[inline]
 	fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
-		unsafe { self.bitptr.span_unchecked(1) }
-			.render(fmt, "Ref", &[("bit", &self.data as &dyn Debug)])
+		unsafe { self.bitptr.span_unchecked(1) }.render(
+			fmt,
+			"Ref",
+			&[("bit", &self.data as &dyn Debug)],
+		)
 	}
 }
 
@@ -390,7 +373,9 @@ where
 {
 	#[inline]
 	fn hash<H>(&self, state: &mut H)
-	where H: Hasher {
+	where
+		H: Hasher,
+	{
 		self.bitptr.hash(state);
 	}
 }

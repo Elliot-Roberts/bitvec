@@ -59,20 +59,6 @@ fn main() {
 	);
 	render(&bv);
 
-	let bv: BitVec<u16, Msb0> = bv.into_iter().collect();
-	qprintln!("A BitVec can use storage other than u8");
-	render(&bv);
-
-	qprintln!("BitVec can participate in Boolean arithmetic");
-	let full = bv.clone() | bits![1; 132];
-	render(&full);
-	let empty = full & bits![0; 132];
-	render(&empty);
-	let flip = bv ^ bits![1; 132];
-	render(&flip);
-	let bv = !flip;
-	render(&bv);
-
 	qprintln!(
 		"\
 Bit slice operations will never affect or observe memory outside the domain of

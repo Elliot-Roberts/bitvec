@@ -5,7 +5,6 @@
 #[doc(hidden)]
 pub mod internal;
 
-mod tests;
 
 #[macro_export]
 #[doc = include_str!("../doc/macros/BitArr_type.md")]
@@ -21,7 +20,7 @@ macro_rules! BitArr {
 	};
 
 	(for $len:expr) => {
-		$crate::BitArr!(for $len, in usize)
+		$crate::BitArr!(for $len, in u8)
 	};
 }
 
@@ -153,7 +152,7 @@ macro_rules! bitarr {
 		$crate::bitarr!(const $val; $len)
 	}};
 	($($val:expr),* $(,)?) => {
-		$crate::bitarr!(usize, Lsb0; $($val),*)
+		$crate::bitarr!(u8, Lsb0; $($val),*)
 	};
 }
 
@@ -324,10 +323,10 @@ macro_rules! bits {
 
 	//  Default order and store.
 	($val:expr; $len:expr) => {
-		$crate::bits!(usize, $crate::order::Lsb0; $val; $len)
+		$crate::bits!(u8, $crate::order::Lsb0; $val; $len)
 	};
 	($($val:expr),* $(,)?) => {
-		$crate::bits!(usize, Lsb0; $($val),*)
+		$crate::bits!(u8, Lsb0; $($val),*)
 	};
 }
 

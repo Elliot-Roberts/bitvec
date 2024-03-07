@@ -1029,29 +1029,6 @@ mod tests {
 			assert!(BitIdx::<u8>::new(n).is_ok());
 		}
 		assert!(BitIdx::<u8>::new(8).is_err());
-
-		for n in 0 .. 16 {
-			assert!(BitIdx::<u16>::new(n).is_ok());
-		}
-		assert!(BitIdx::<u16>::new(16).is_err());
-
-		for n in 0 .. 32 {
-			assert!(BitIdx::<u32>::new(n).is_ok());
-		}
-		assert!(BitIdx::<u32>::new(32).is_err());
-
-		#[cfg(target_pointer_width = "64")]
-		{
-			for n in 0 .. 64 {
-				assert!(BitIdx::<u64>::new(n).is_ok());
-			}
-			assert!(BitIdx::<u64>::new(64).is_err());
-		}
-
-		for n in 0 .. bits_of::<usize>() as u8 {
-			assert!(BitIdx::<usize>::new(n).is_ok());
-		}
-		assert!(BitIdx::<usize>::new(bits_of::<usize>() as u8).is_err());
 	}
 
 	#[test]
@@ -1060,29 +1037,6 @@ mod tests {
 			assert!(BitEnd::<u8>::new(n).is_some());
 		}
 		assert!(BitEnd::<u8>::new(9).is_none());
-
-		for n in 0 ..= 16 {
-			assert!(BitEnd::<u16>::new(n).is_some());
-		}
-		assert!(BitEnd::<u16>::new(17).is_none());
-
-		for n in 0 ..= 32 {
-			assert!(BitEnd::<u32>::new(n).is_some());
-		}
-		assert!(BitEnd::<u32>::new(33).is_none());
-
-		#[cfg(target_pointer_width = "64")]
-		{
-			for n in 0 ..= 64 {
-				assert!(BitEnd::<u64>::new(n).is_some());
-			}
-			assert!(BitEnd::<u64>::new(65).is_none());
-		}
-
-		for n in 0 ..= bits_of::<usize>() as u8 {
-			assert!(BitEnd::<usize>::new(n).is_some());
-		}
-		assert!(BitEnd::<usize>::new(bits_of::<usize>() as u8 + 1).is_none());
 	}
 
 	#[test]
@@ -1091,29 +1045,6 @@ mod tests {
 			assert!(BitPos::<u8>::new(n).is_some());
 		}
 		assert!(BitPos::<u8>::new(8).is_none());
-
-		for n in 0 .. 16 {
-			assert!(BitPos::<u16>::new(n).is_some());
-		}
-		assert!(BitPos::<u16>::new(16).is_none());
-
-		for n in 0 .. 32 {
-			assert!(BitPos::<u32>::new(n).is_some());
-		}
-		assert!(BitPos::<u32>::new(32).is_none());
-
-		#[cfg(target_pointer_width = "64")]
-		{
-			for n in 0 .. 64 {
-				assert!(BitPos::<u64>::new(n).is_some());
-			}
-			assert!(BitPos::<u64>::new(64).is_none());
-		}
-
-		for n in 0 .. bits_of::<usize>() as u8 {
-			assert!(BitPos::<usize>::new(n).is_some());
-		}
-		assert!(BitPos::<usize>::new(bits_of::<usize>() as u8).is_none());
 	}
 
 	#[test]
@@ -1123,42 +1054,10 @@ mod tests {
 		}
 		assert!(BitSel::<u8>::new(0).is_none());
 		assert!(BitSel::<u8>::new(3).is_none());
-
-		for n in 0 .. 16 {
-			assert!(BitSel::<u16>::new(1 << n).is_some());
-		}
-		assert!(BitSel::<u16>::new(0).is_none());
-		assert!(BitSel::<u16>::new(3).is_none());
-
-		for n in 0 .. 32 {
-			assert!(BitSel::<u32>::new(1 << n).is_some());
-		}
-		assert!(BitSel::<u32>::new(0).is_none());
-		assert!(BitSel::<u32>::new(3).is_none());
-
-		#[cfg(target_pointer_width = "64")]
-		{
-			for n in 0 .. 64 {
-				assert!(BitSel::<u64>::new(1 << n).is_some());
-			}
-			assert!(BitSel::<u64>::new(0).is_none());
-			assert!(BitSel::<u64>::new(3).is_none());
-		}
-
-		for n in 0 .. bits_of::<usize>() as u8 {
-			assert!(BitSel::<usize>::new(1 << n).is_some());
-		}
-		assert!(BitSel::<usize>::new(0).is_none());
-		assert!(BitSel::<usize>::new(3).is_none());
 	}
 
 	#[test]
 	fn ranges() {
-		let mut range = BitIdx::<u16>::range_all();
-		assert_eq!(range.next(), BitIdx::new(0).ok());
-		assert_eq!(range.next_back(), BitIdx::new(15).ok());
-		assert_eq!(range.count(), 14);
-
 		let mut range = BitEnd::<u8>::range_from(BitIdx::new(1).unwrap());
 		assert_eq!(range.next(), BitEnd::new(1));
 		assert_eq!(range.next_back(), BitEnd::new(8));
@@ -1193,20 +1092,6 @@ mod tests {
 		let (six, step) = seven.prev();
 		assert_eq!(six, BitIdx::new(6).unwrap());
 		assert!(!step);
-
-		let fourteen = BitIdx::<u16>::new(14).unwrap();
-		let (fifteen, step) = fourteen.next();
-		assert_eq!(fifteen, BitIdx::new(15).unwrap());
-		assert!(!step);
-		let (zero, step) = fifteen.next();
-		assert_eq!(zero, BitIdx::MIN);
-		assert!(step);
-		let (fifteen, step) = zero.prev();
-		assert_eq!(fifteen, BitIdx::new(15).unwrap());
-		assert!(step);
-		let (fourteen, step) = fifteen.prev();
-		assert_eq!(fourteen, BitIdx::new(14).unwrap());
-		assert!(!step);
 	}
 
 	#[test]
@@ -1218,11 +1103,6 @@ mod tests {
 		let (jump, head) = BitIdx::<u8>::MAX.offset(1);
 		assert_eq!(jump, 1);
 		assert_eq!(head, BitIdx::MIN);
-
-		let (jump, head) = BitIdx::<u16>::new(10).unwrap().offset(40);
-		// 10 is in 0..16; 10+40 is in 48..64
-		assert_eq!(jump, 3);
-		assert_eq!(head, BitIdx::new(2).unwrap());
 
 		//  .offset() wraps at the `isize` boundary
 		let (jump, head) = BitIdx::<u8>::MAX.offset(isize::MAX);
@@ -1236,10 +1116,6 @@ mod tests {
 		let (elts, tail) = BitIdx::<u8>::new(3).unwrap().span(3);
 		assert_eq!(elts, 1);
 		assert_eq!(tail, BitEnd::new(6).unwrap());
-
-		let (elts, tail) = BitIdx::<u16>::new(10).unwrap().span(40);
-		assert_eq!(elts, 4);
-		assert_eq!(tail, BitEnd::new(2).unwrap());
 	}
 
 	#[test]
@@ -1268,82 +1144,24 @@ mod tests {
 		use alloc::format;
 
 		assert_eq!(format!("{:?}", BitIdx::<u8>::MAX), "BitIdx<u8>(111)");
-		assert_eq!(format!("{:?}", BitIdx::<u16>::MAX), "BitIdx<u16>(1111)");
-		assert_eq!(format!("{:?}", BitIdx::<u32>::MAX), "BitIdx<u32>(11111)");
 
 		assert_eq!(
 			format!("{:?}", BitIdx::<u8>::new(8).unwrap_err()),
 			"BitIdxError<u8>(8)"
 		);
-		assert_eq!(
-			format!("{:?}", BitIdx::<u16>::new(16).unwrap_err()),
-			"BitIdxError<u16>(16)"
-		);
-		assert_eq!(
-			format!("{:?}", BitIdx::<u32>::new(32).unwrap_err()),
-			"BitIdxError<u32>(32)"
-		);
 
 		assert_eq!(format!("{:?}", BitEnd::<u8>::MAX), "BitEnd<u8>(1000)");
-		assert_eq!(format!("{:?}", BitEnd::<u16>::MAX), "BitEnd<u16>(10000)");
-		assert_eq!(format!("{:?}", BitEnd::<u32>::MAX), "BitEnd<u32>(100000)");
 
 		assert_eq!(format!("{:?}", BitPos::<u8>::MAX), "BitPos<u8>(111)");
-		assert_eq!(format!("{:?}", BitPos::<u16>::MAX), "BitPos<u16>(1111)");
-		assert_eq!(format!("{:?}", BitPos::<u32>::MAX), "BitPos<u32>(11111)");
 
 		assert_eq!(
 			format!("{:?}", BitSel::<u8>::new(1).unwrap()),
 			"BitSel<u8>(00000001)",
-		);
-		assert_eq!(
-			format!("{:?}", BitSel::<u16>::new(1).unwrap()),
-			"BitSel<u16>(0000000000000001)",
-		);
-		assert_eq!(
-			format!("{:?}", BitSel::<u32>::new(1).unwrap()),
-			"BitSel<u32>(00000000000000000000000000000001)",
 		);
 
 		assert_eq!(
 			format!("{:?}", BitMask::<u8>::new(1 | 4 | 32)),
 			"BitMask<u8>(00100101)",
 		);
-		assert_eq!(
-			format!("{:?}", BitMask::<u16>::new(1 | 4 | 32)),
-			"BitMask<u16>(0000000000100101)",
-		);
-		assert_eq!(
-			format!("{:?}", BitMask::<u32>::new(1 | 4 | 32)),
-			"BitMask<u32>(00000000000000000000000000100101)",
-		);
-
-		#[cfg(target_pointer_width = "64")]
-		{
-			assert_eq!(
-				format!("{:?}", BitIdx::<u64>::MAX),
-				"BitIdx<u64>(111111)",
-			);
-			assert_eq!(
-				format!("{:?}", BitIdx::<u64>::new(64).unwrap_err()),
-				"BitIdxError<u64>(64)",
-			);
-			assert_eq!(
-				format!("{:?}", BitEnd::<u64>::MAX),
-				"BitEnd<u64>(1000000)",
-			);
-			assert_eq!(
-				format!("{:?}", BitPos::<u64>::MAX),
-				"BitPos<u64>(111111)",
-			);
-			assert_eq!(
-				format!("{:?}", BitSel::<u64>::new(1).unwrap()),
-				"BitSel<u64>(0000000000000000000000000000000000000000000000000000000000000001)",
-			);
-			assert_eq!(
-				format!("{:?}", BitMask::<u64>::new(1 | 4 | 32)),
-				"BitMask<u64>(0000000000000000000000000000000000000000000000000000000000100101)",
-			);
-		}
 	}
 }

@@ -9,12 +9,7 @@ name = "bitvec"
 version = "1.1.0"
 edition = "2021"
 
-categories = [
-	"data-structures",
-	"embedded",
-	"no-std",
-	"rust-patterns",
-]
+categories = ["data-structures", "embedded", "no-std", "rust-patterns"]
 description = "Addresses memory by bits, for packed collections and bitfields"
 documentation = "https://docs.rs/bitvec/latest/bitvec"
 homepage = "https://ferrilab.github.io/bitvec"
@@ -26,35 +21,21 @@ include = [
 	"src/**/*.rs",
 	"benches/*.rs",
 ]
-keywords = [
-	"bitfields",
-	"bitmap",
-	"bitstream",
-	"bitvec",
-	"bitvector",
-]
+keywords = ["bitfields", "bitmap", "bitstream", "bitvec", "bitvector"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/ferrilab/bitvec"
 rust-version = "1.56"
 
 [features]
-alloc = [
-]
-atomic = [
-]
+alloc = []
+atomic = []
 # Enable use of atomics and the standard library by default. no-std
 # users will need to opt out with `default-features = false`.
-default = [
-	"atomic",
-	"std",
-]
+default = ["atomic", "std"]
 # The standard library includes the allocator.
-std = [
-	"alloc",
-]
-testing = [
-]
+std = ["alloc"]
+testing = []
 
 [dependencies]
 radium = "0.7"
@@ -88,11 +69,7 @@ static_assertions = "1"
 # harness = false
 # Indicates the features that docs.rs should enable when building documentation.
 [package.metadata.docs.rs]
-features = [
-	"atomic",
-	"serde",
-	"std",
-]
+features = ["atomic", "serde", "std"]
 
 [badges.codecov]
 repository = "ferrilab/bitvec"

@@ -1,21 +1,14 @@
 #![doc = include_str!("../../doc/boxed/iter.md")]
 
 use core::{
-	fmt::{
-		self,
-		Debug,
-		Formatter,
-	},
+	fmt::{self, Debug, Formatter},
 	iter::FusedIterator,
 	ops::Range,
 };
 
 use super::BitBox;
 use crate::{
-	order::{
-		BitOrder,
-		Lsb0,
-	},
+	order::{BitOrder, Lsb0},
 	slice::BitSlice,
 	store::BitStore,
 };
@@ -41,7 +34,7 @@ where
 
 [`vec::IntoIter`](alloc::vec::IntoIter)
 **/
-pub struct IntoIter<T = usize, O = Lsb0>
+pub struct IntoIter<T = u8, O = Lsb0>
 where
 	T: BitStore,
 	O: BitOrder,
@@ -61,7 +54,7 @@ where
 	/// Wraps a bit-array in an iterator view. This is irreversible.
 	#[inline]
 	fn new(this: BitBox<T, O>) -> Self {
-		let iter = 0 .. this.len();
+		let iter = 0..this.len();
 		Self { _buf: this, iter }
 	}
 

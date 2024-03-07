@@ -2,61 +2,31 @@
 
 use core::{
 	any,
-	fmt::{
-		self,
-		Binary,
-		Debug,
-		Display,
-		Formatter,
-		Pointer,
-	},
+	fmt::{self, Binary, Debug, Display, Formatter, Pointer},
 	marker::PhantomData,
 	mem,
-	ptr::{
-		self,
-		NonNull,
-	},
+	ptr::{self, NonNull},
 };
 
 use tap::Pipe;
 use wyz::{
 	comu::{
-		Address,
-		Const,
-		Mut,
-		Mutability,
-		NullPtrError,
-		Reference,
-		Referential,
+		Address, Const, Mut, Mutability, NullPtrError, Reference, Referential,
 	},
 	fmt::FmtForward,
 };
 
-use super::{
-	BitPtr,
-	BitPtrError,
-	BitPtrRange,
-	MisalignError,
-};
+use super::{BitPtr, BitPtrError, BitPtrRange, MisalignError};
 use crate::{
-	index::{
-		BitEnd,
-		BitIdx,
-	},
-	mem::{
-		bits_of,
-		BitRegister,
-	},
-	order::{
-		BitOrder,
-		Lsb0,
-	},
+	index::{BitEnd, BitIdx},
+	mem::{bits_of, BitRegister},
+	order::{BitOrder, Lsb0},
 	slice::BitSlice,
 	store::BitStore,
 };
 
 #[doc = include_str!("../../doc/ptr/BitSpan.md")]
-pub(crate) struct BitSpan<M = Const, T = usize, O = Lsb0>
+pub(crate) struct BitSpan<M = Const, T = u8, O = Lsb0>
 where
 	M: Mutability,
 	T: BitStore,
@@ -352,8 +322,7 @@ where
 	pub(crate) unsafe fn set_len(&mut self, new_len: usize) {
 		if cfg!(debug_assertions) {
 			*self = Self::new(self.address(), self.head(), new_len).unwrap();
-		}
-		else {
+		} else {
 			self.len &= Self::LEN_HEAD_MASK;
 			self.len |= new_len << Self::LEN_HEAD_BITS;
 		}
@@ -436,7 +405,9 @@ where
 	/// reinterprets the element type, and the encoded value may shift
 	/// significantly in the result type. Use with caution.
 	pub(crate) fn cast<U>(self) -> BitSpan<M, U, O>
-	where U: BitStore {
+	where
+		U: BitStore,
+	{
 		let Self { ptr, len, .. } = self;
 		BitSpan {
 			ptr,
@@ -456,7 +427,9 @@ where
 	/// `U` must have the same type family as `T`. It is illegal to use this
 	/// method to cast away alias safeties such as an atomic or `Cell` wrapper.
 	pub(crate) unsafe fn align_to<U>(self) -> (Self, BitSpan<M, U, O>, Self)
-	where U: BitStore {
+	where
+		U: BitStore,
+	{
 		/* This function body implements the algorithm locally, rather than
 		 * delegating to the standard library’s `<[T]>::align_to::<U>`
 		 * function, because that requires use of memory references, and
@@ -558,7 +531,9 @@ where
 	///
 	/// This is a noöp.
 	pub(crate) fn to_bitslice<'a>(self) -> Reference<'a, M, BitSlice<T, O>>
-	where Address<M, BitSlice<T, O>>: Referential<'a> {
+	where
+		Address<M, BitSlice<T, O>>: Referential<'a>,
+	{
 		unsafe { self.to_bitslice_addr().to_ref() }
 	}
 }
@@ -787,7 +762,8 @@ where
 /// An error produced when creating `BitSpan` encoded references.
 #[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum BitSpanError<T>
-where T: BitStore
+where
+	T: BitStore,
 {
 	/// A null pointer was provided.
 	Null(NullPtrError),
@@ -801,7 +777,8 @@ where T: BitStore
 
 #[cfg(not(tarpaulin_include))]
 impl<T> From<BitPtrError<T>> for BitSpanError<T>
-where T: BitStore
+where
+	T: BitStore,
 {
 	#[inline]
 	fn from(err: BitPtrError<T>) -> Self {
@@ -814,7 +791,8 @@ where T: BitStore
 
 #[cfg(not(tarpaulin_include))]
 impl<T> From<MisalignError<T>> for BitSpanError<T>
-where T: BitStore
+where
+	T: BitStore,
 {
 	#[inline]
 	fn from(err: MisalignError<T>) -> Self {
@@ -824,7 +802,8 @@ where T: BitStore
 
 #[cfg(not(tarpaulin_include))]
 impl<T> Debug for BitSpanError<T>
-where T: BitStore
+where
+	T: BitStore,
 {
 	#[inline]
 	fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
@@ -844,7 +823,8 @@ where T: BitStore
 
 #[cfg(not(tarpaulin_include))]
 impl<T> Display for BitSpanError<T>
-where T: BitStore
+where
+	T: BitStore,
 {
 	#[inline]
 	fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {

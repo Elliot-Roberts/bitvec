@@ -1,17 +1,8 @@
 #![doc = include_str!("../doc/order.md")]
 
 use crate::{
-	index::{
-		BitEnd,
-		BitIdx,
-		BitMask,
-		BitPos,
-		BitSel,
-	},
-	mem::{
-		bits_of,
-		BitRegister,
-	},
+	index::{BitEnd, BitIdx, BitMask, BitPos, BitSel},
+	mem::{bits_of, BitRegister},
 };
 
 #[doc = include_str!("../doc/order/BitOrder.md")]
@@ -59,7 +50,8 @@ pub unsafe trait BitOrder: 'static {
 	/// [`BitPos::new`]: crate::index::BitPos::new
 	/// [`BitPos::new_unchecked`]: crate::index::BitPos::new_unchecked
 	fn at<R>(index: BitIdx<R>) -> BitPos<R>
-	where R: BitRegister;
+	where
+		R: BitRegister;
 
 	/// Produces a single-bit selection mask from a bit-index.
 	///
@@ -69,7 +61,9 @@ pub unsafe trait BitOrder: 'static {
 	/// numerically equivalent.
 	#[inline]
 	fn select<R>(index: BitIdx<R>) -> BitSel<R>
-	where R: BitRegister {
+	where
+		R: BitRegister,
+	{
 		Self::at::<R>(index).select()
 	}
 
@@ -124,13 +118,17 @@ pub struct Msb0;
 unsafe impl BitOrder for Lsb0 {
 	#[inline]
 	fn at<R>(index: BitIdx<R>) -> BitPos<R>
-	where R: BitRegister {
+	where
+		R: BitRegister,
+	{
 		unsafe { BitPos::new_unchecked(index.into_inner()) }
 	}
 
 	#[inline]
 	fn select<R>(index: BitIdx<R>) -> BitSel<R>
-	where R: BitRegister {
+	where
+		R: BitRegister,
+	{
 		unsafe { BitSel::new_unchecked(R::ONE << index.into_inner()) }
 	}
 
@@ -171,13 +169,17 @@ unsafe impl BitOrder for Lsb0 {
 unsafe impl BitOrder for Msb0 {
 	#[inline]
 	fn at<R>(index: BitIdx<R>) -> BitPos<R>
-	where R: BitRegister {
+	where
+		R: BitRegister,
+	{
 		unsafe { BitPos::new_unchecked(R::MASK - index.into_inner()) }
 	}
 
 	#[inline]
 	fn select<R>(index: BitIdx<R>) -> BitSel<R>
-	where R: BitRegister {
+	where
+		R: BitRegister,
+	{
 		/* Shift the MSbit down by the index count. This is not equivalent to
 		 * the expression `1 << (mask - index)`, because that is required to
 		 * perform a runtime subtraction before the shift, while this produces
@@ -237,14 +239,10 @@ compile_fail!(
 #[cfg(not(tarpaulin_include))]
 #[doc = include_str!("../doc/order/verify.md")]
 pub fn verify<O>(verbose: bool)
-where O: BitOrder {
+where
+	O: BitOrder,
+{
 	verify_for_type::<u8, O>(verbose);
-	verify_for_type::<u16, O>(verbose);
-	verify_for_type::<u32, O>(verbose);
-	verify_for_type::<usize, O>(verbose);
-
-	#[cfg(target_pointer_width = "64")]
-	verify_for_type::<u64, O>(verbose);
 }
 
 /// Verification does not access memory, and is both useless and slow in Miri.
@@ -269,7 +267,7 @@ where
 	let ord_name = type_name::<O>();
 	let reg_name = type_name::<R>();
 
-	for n in 0 .. bits_of::<R>() as u8 {
+	for n in 0..bits_of::<R>() as u8 {
 		//  Wrap the counter as an index.
 		let idx = unsafe { BitIdx::<R>::new_unchecked(n) };
 
@@ -403,7 +401,9 @@ pub struct HiLo;
 #[cfg(test)]
 unsafe impl BitOrder for HiLo {
 	fn at<R>(index: BitIdx<R>) -> BitPos<R>
-	where R: BitRegister {
+	where
+		R: BitRegister,
+	{
 		BitPos::new(index.into_inner() ^ 4).unwrap()
 	}
 }
@@ -437,30 +437,6 @@ mod tests {
 		fn verify_u8() {
 			verify_for_type::<u8, Lsb0>(cfg!(feature = "verbose"));
 		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_u16() {
-			verify_for_type::<u16, Lsb0>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_u32() {
-			verify_for_type::<u32, Lsb0>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(all(target_pointer_width = "64", not(tarpaulin)))]
-		fn verify_u64() {
-			verify_for_type::<u64, Lsb0>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_usize() {
-			verify_for_type::<usize, Lsb0>(cfg!(feature = "verbose"));
-		}
 	}
 
 	mod msb0 {
@@ -470,30 +446,6 @@ mod tests {
 		fn verify_u8() {
 			verify_for_type::<u8, Msb0>(cfg!(feature = "verbose"));
 		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_u16() {
-			verify_for_type::<u16, Msb0>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_u32() {
-			verify_for_type::<u32, Msb0>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(all(target_pointer_width = "64", not(tarpaulin)))]
-		fn verify_u64() {
-			verify_for_type::<u64, Msb0>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_usize() {
-			verify_for_type::<usize, Msb0>(cfg!(feature = "verbose"));
-		}
 	}
 
 	mod hilo {
@@ -502,30 +454,6 @@ mod tests {
 		#[test]
 		fn verify_u8() {
 			verify_for_type::<u8, HiLo>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_u16() {
-			verify_for_type::<u16, HiLo>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_u32() {
-			verify_for_type::<u32, HiLo>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(all(target_pointer_width = "64", not(tarpaulin)))]
-		fn verify_u64() {
-			verify_for_type::<u64, HiLo>(cfg!(feature = "verbose"));
-		}
-
-		#[test]
-		#[cfg(not(tarpaulin))]
-		fn verify_usize() {
-			verify_for_type::<usize, HiLo>(cfg!(feature = "verbose"));
 		}
 	}
 }

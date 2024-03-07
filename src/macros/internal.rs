@@ -32,58 +32,6 @@ macro_rules! __encode_bits {
 		$crate::__encode_bits!(RadiumU8 as u8, $ord; $($val),*)
 	};
 
-	(u16, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(u16 as u16, $ord; $($val),*)
-	};
-	(Cell<u16>, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(Cell<u16> as u16, $ord; $($val),*)
-	};
-	(AtomicU16, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(AtomicU16 as u16, $ord; $($val),*)
-	};
-	(RadiumU16, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(RadiumU16 as u16, $ord; $($val),*)
-	};
-
-	(u32, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(u32 as u32, $ord; $($val),*)
-	};
-	(Cell<u32>, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(Cell<u32> as u32, $ord; $($val),*)
-	};
-	(AtomicU32, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(AtomicU32 as u32, $ord; $($val),*)
-	};
-	(RadiumU32, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(RadiumU32 as u32, $ord; $($val),*)
-	};
-
-	(u64, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(u64 as u64, $ord; $($val),*)
-	};
-	(Cell<u64>, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(Cell<u64> as u64, $ord; $($val),*)
-	};
-	(AtomicU64, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(AtomicU64 as u64, $ord; $($val),*)
-	};
-	(RadiumU64, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(RadiumU64 as u64, $ord; $($val),*)
-	};
-
-	(usize, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(usize as usize, $ord; $($val),*)
-	};
-	(Cell<usize>, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(Cell<usize> as usize, $ord; $($val),*)
-	};
-	(AtomicUsize, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(AtomicUsize as usize, $ord; $($val),*)
-	};
-	(RadiumUsize, $ord:tt; $($val:expr),*) => {
-		$crate::__encode_bits!(RadiumUsize as usize, $ord; $($val),*)
-	};
-
 	//  This arm routes `usize` into `u32` or `u64`, depending on target, and
 	//  marks them to return to `usize` after chunking.
 	($typ:ty as usize, $ord:tt; $($val:expr),*) => {{
@@ -300,8 +248,7 @@ macro_rules! __extend_bool {
 		type Mem = <$typ as $crate::store::BitStore>::Mem;
 		if $val != 0 {
 			<Mem as $crate::mem::BitRegister>::ALL
-		}
-		else {
+		} else {
 			<Mem as $crate::macros::internal::funty::Integral>::ZERO
 		}
 	}};

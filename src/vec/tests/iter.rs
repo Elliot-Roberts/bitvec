@@ -4,7 +4,7 @@ use crate::prelude::*;
 fn extend() {
 	let mut bv = bitvec![];
 	bv.extend(Some(true));
-	bv.extend([2usize]);
+	bv.extend([2u8]);
 
 	let mut iter = bv.into_iter();
 	assert!(iter.next().unwrap());

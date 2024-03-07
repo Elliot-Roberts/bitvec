@@ -2,28 +2,16 @@
 #![doc = include_str!("../doc/boxed.md")]
 
 use alloc::boxed::Box;
-use core::{
-	mem::ManuallyDrop,
-	slice,
-};
+use core::{mem::ManuallyDrop, slice};
 
-use tap::{
-	Pipe,
-	Tap,
-};
+use tap::{Pipe, Tap};
 use wyz::comu::Mut;
 
 use crate::{
 	index::BitIdx,
 	mem,
-	order::{
-		BitOrder,
-		Lsb0,
-	},
-	ptr::{
-		BitPtr,
-		BitSpan,
-	},
+	order::{BitOrder, Lsb0},
+	ptr::{BitPtr, BitSpan},
 	slice::BitSlice,
 	store::BitStore,
 	vec::BitVec,
@@ -33,14 +21,13 @@ use crate::{
 mod api;
 mod iter;
 mod ops;
-mod tests;
 mod traits;
 
 pub use self::iter::IntoIter;
 
 #[repr(transparent)]
 #[doc = include_str!("../doc/boxed/BitBox.md")]
-pub struct BitBox<T = usize, O = Lsb0>
+pub struct BitBox<T = u8, O = Lsb0>
 where
 	T: BitStore,
 	O: BitOrder,
@@ -297,8 +284,8 @@ where
 		let tail = head + bits;
 		let all = self.as_raw_mut_slice().view_bits_mut::<O>();
 		unsafe {
-			all.get_unchecked_mut(.. head).fill(value);
-			all.get_unchecked_mut(tail ..).fill(value);
+			all.get_unchecked_mut(..head).fill(value);
+			all.get_unchecked_mut(tail..).fill(value);
 		}
 	}
 
@@ -344,7 +331,7 @@ where
 		let last = self.len() + head;
 		unsafe {
 			self.bitspan.set_head(BitIdx::MIN);
-			self.copy_within_unchecked(head .. last, 0);
+			self.copy_within_unchecked(head..last, 0);
 		}
 	}
 
@@ -356,7 +343,9 @@ where
 	/// `Box` is written back into `self` and forgotten.
 	#[inline]
 	fn with_box<F, R>(&mut self, func: F) -> R
-	where F: FnOnce(&mut ManuallyDrop<Box<[T]>>) -> R {
+	where
+		F: FnOnce(&mut ManuallyDrop<Box<[T]>>) -> R,
+	{
 		self.as_raw_mut_slice()
 			.pipe(|raw| unsafe { Box::from_raw(raw) })
 			.pipe(ManuallyDrop::new)

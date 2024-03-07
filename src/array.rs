@@ -4,10 +4,7 @@ use core::marker::PhantomData;
 
 use crate::{
 	mem,
-	order::{
-		BitOrder,
-		Lsb0,
-	},
+	order::{BitOrder, Lsb0},
 	slice::BitSlice,
 	view::BitViewSized,
 };
@@ -22,7 +19,7 @@ pub use self::iter::IntoIter;
 
 #[repr(transparent)]
 #[doc = include_str!("../doc/array/BitArray.md")]
-pub struct BitArray<A = [usize; 1], O = Lsb0>
+pub struct BitArray<A = [u8; 1], O = Lsb0>
 where
 	A: BitViewSized,
 	O: BitOrder,

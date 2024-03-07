@@ -1,44 +1,24 @@
 #![doc = include_str!("../../doc/ptr/range.md")]
 
 use core::{
-	fmt::{
-		self,
-		Debug,
-		Formatter,
-	},
-	hash::{
-		Hash,
-		Hasher,
-	},
+	fmt::{self, Debug, Formatter},
+	hash::{Hash, Hasher},
 	iter::FusedIterator,
-	ops::{
-		Bound,
-		Range,
-		RangeBounds,
-	},
+	ops::{Bound, Range, RangeBounds},
 };
 
-use wyz::comu::{
-	Const,
-	Mutability,
-};
+use wyz::comu::{Const, Mutability};
 
-use super::{
-	BitPtr,
-	BitSpan,
-};
+use super::{BitPtr, BitSpan};
 use crate::{
 	devel as dvl,
-	order::{
-		BitOrder,
-		Lsb0,
-	},
+	order::{BitOrder, Lsb0},
 	store::BitStore,
 };
 
 #[repr(C)]
 #[doc = include_str!("../../doc/ptr/BitPtrRange.md")]
-pub struct BitPtrRange<M = Const, T = usize, O = Lsb0>
+pub struct BitPtrRange<M = Const, T = u8, O = Lsb0>
 where
 	M: Mutability,
 	T: BitStore,
@@ -56,7 +36,7 @@ where
 	/// itself be the base address of another region in a different provenance,
 	/// and bit-pointers are always composed of an ordinary memory address and a
 	/// bit-counter, the ending bit-pointer is always valid.
-	pub end:   BitPtr<M, T, O>,
+	pub end: BitPtr<M, T, O>,
 }
 
 impl<M, T, O> BitPtrRange<M, T, O>
@@ -69,7 +49,7 @@ where
 	/// and `.end`) are equally empty.
 	pub const EMPTY: Self = Self {
 		start: BitPtr::DANGLING,
-		end:   BitPtr::DANGLING,
+		end: BitPtr::DANGLING,
 	};
 
 	/// Explicitly converts a `Range<BitPtr>` into a `BitPtrRange`.
@@ -82,7 +62,7 @@ where
 	#[inline]
 	pub fn into_range(self) -> Range<BitPtr<M, T, O>> {
 		let Self { start, end } = self;
-		start .. end
+		start..end
 	}
 
 	/// Tests if the range is empty (the distance between bit-pointers is `0`).
@@ -303,7 +283,9 @@ where
 {
 	#[inline]
 	fn hash<H>(&self, state: &mut H)
-	where H: Hasher {
+	where
+		H: Hasher,
+	{
 		self.start.hash(state);
 		self.end.hash(state);
 	}

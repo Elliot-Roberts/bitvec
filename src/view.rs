@@ -284,16 +284,9 @@ mod tests {
 		assert!(blank.view_bits::<LocalBits>().is_empty());
 		assert!(blank.view_bits_mut::<LocalBits>().is_empty());
 
-		assert_eq!([0u32; 2].as_bits::<LocalBits>().len(), 64);
-		assert_eq!([0u32; 2].as_mut_bits::<LocalBits>().len(), 64);
-
-		assert_eq!(0usize.as_raw_slice().len(), 1);
-		assert_eq!(0usize.as_raw_mut_slice().len(), 1);
-		assert_eq!(0u32.into_bitarray::<LocalBits>().len(), 32);
-
 		assert_impl_all!(
-			[usize; 10]: AsBits<usize>,
-			AsMutBits<usize>,
+			[u8; 10]: AsBits<u8>,
+			AsMutBits<u8>,
 			BitViewSized,
 			BitView,
 		);
